@@ -25,16 +25,6 @@ class AppEventsListener extends Command
     protected $description = 'Listen for notifications across all services of your application';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
