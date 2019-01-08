@@ -1,7 +1,6 @@
 {
     "name": "decahedron/laravel-app-events",
     "description": "Manage application-wide events for SOAs with Google Cloud PubSub",
-    "type": "library",
     "license": "MIT",
     "authors": [
         {
@@ -9,7 +8,6 @@
             "email": "leo@decahedron.io"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
         "google/cloud": "^0.88.0",
         "illuminate/config": "5.7.*",
