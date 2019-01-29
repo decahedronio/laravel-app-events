@@ -4,6 +4,7 @@ namespace Decahedron\AppEvents\Commands;
 
 use Decahedron\AppEvents\AppEvent;
 use Decahedron\AppEvents\AppEventFactory;
+use Decahedron\AppEvents\UnserializableProtoException;
 use Google\Cloud\PubSub\Message;
 use Google\Cloud\PubSub\PubSubClient;
 use Illuminate\Console\Command;
@@ -56,7 +57,11 @@ class AppEventsListener extends Command
             }
 
             foreach ($messages as $message) {
-                $job = AppEventFactory::fromMessage($message);
+                try {
+                    $job = AppEventFactory::fromMessage($message);
+                } catch (UnserializableProtoException $e) {
+                    $this->info('No handler registered for message type: '.$e->protoMessageType);
+                }
                 $this->info('Handling message: '.$job->event);
 
                 $job->handle();

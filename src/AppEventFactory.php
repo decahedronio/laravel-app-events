@@ -18,7 +18,7 @@ class AppEventFactory
         $rawData = json_decode(base64_decode($message->data()), JSON_OBJECT_AS_ARRAY);
 
         if (! ($protobufClass = config('app-events.mappings.'.$rawData['proto']))) {
-            throw new UnserializableProtoException;
+            throw new UnserializableProtoException($rawData['proto']);
         }
 
         /** @var ProtobufMessage $proto */

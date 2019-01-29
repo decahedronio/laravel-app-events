@@ -13,7 +13,8 @@
         "illuminate/config": "5.7.*",
         "illuminate/console": "5.7.*",
         "kainxspirits/laravel-pubsub-queue": "^0.1.0",
-        "google/protobuf": "^3.6.1"
+        "google/protobuf": "^3.6.1",
+        "illuminate/bus": "^5.7"
     },
     "autoload": {
         "psr-4": {
@@ -22,6 +23,9 @@
     },
     "extra": {
         "laravel": {
+            "dont-discover": [
+                "Kainxspirits\\PubSubQueue\\PubSubQueueServiceProvider"
+            ],
             "providers": [
                 "Decahedron\\AppEvents\\AppEventsProvider"
             ]
