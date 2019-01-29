@@ -9,12 +9,12 @@ class AppEventsProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->app['queue']->addConnector('pubsub', function () {
+        $this->app['queue']->addConnector('app-events-pubsub', function () {
             return new PubSubConnector;
         });
 
         $this->app['config']->set('queue.connections.app-events', [
-            'driver'     => 'pubsub',
+            'driver'     => 'app-events-pubsub',
             'queue'      => $this->app['config']->get('app-events.topic'),
             'project_id' => $this->app['config']->get('app-events.project_id'),
         ]);
