@@ -15,11 +15,11 @@ class PubSubQueue extends BaseQueue
 
         $payload = [
             'proto' => array_flip($protoMappings)[$payloadClass] ?? $payloadClass,
-            'payload' => $job->payload->serializeToString(),
+            'payload' => base64_encode($job->payload->serializeToString()),
             'id' => $this->getRandomId(),
         ];
 
-        return base64_encode(json_encode($payload));
+        return json_encode($payload);
     }
 
     public function push($job, $data = '', $queue = null)
@@ -52,7 +52,7 @@ class PubSubQueue extends BaseQueue
 
         $topic->publish($publish);
 
-        $decoded_payload = json_decode(base64_decode($payload), true);
+        $decoded_payload = json_decode($payload, true);
 
         return $decoded_payload['id'];
     }
@@ -97,7 +97,7 @@ class PubSubQueue extends BaseQueue
 
         return new Message(
             [
-                'data' => base64_encode(json_encode($payload)),
+                'data' => json_encode($payload),
                 'messageId' => $message->id(),
                 'publishTime' => $message->publishTime(),
                 'attributes' => $message->attributes(),
