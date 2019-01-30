@@ -40,7 +40,7 @@ class AppEvent implements ShouldQueue
                 continue;
             }
 
-            app()->make($handler)->handle($this->payload);
+            app()->make($handler)->handle($this->payload, $event);
         }
     }
 }

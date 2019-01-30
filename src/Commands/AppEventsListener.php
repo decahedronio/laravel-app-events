@@ -60,7 +60,7 @@ class AppEventsListener extends Command
                 try {
                     $job = AppEventFactory::fromMessage($message);
                 } catch (UnserializableProtoException $e) {
-                    $this->info('No handler registered for message type: '.$e->protoMessageType);
+                    $this->info('No implementation registered for message type: '.$e->protoMessageType);
                     continue;
                 }
                 $this->info('Handling message: '.$job->event);
