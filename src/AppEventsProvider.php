@@ -13,11 +13,17 @@ class AppEventsProvider extends ServiceProvider
             return new PubSubConnector;
         });
 
-        $this->app['config']->set('queue.connections.app-events', [
-            'driver'     => 'app-events-pubsub',
-            'queue'      => $this->app['config']->get('app-events.topic'),
-            'project_id' => $this->app['config']->get('app-events.project_id'),
-        ]);
+        if ($this->app['config']->get('app-events.enabled', true)) {
+            $this->app['config']->set('queue.connections.app-events', [
+                'driver'     => 'app-events-pubsub',
+                'queue'      => $this->app['config']->get('app-events.topic'),
+                'project_id' => $this->app['config']->get('app-events.project_id'),
+            ]);
+        } else {
+            $this->app['config']->set('queue.connections.app-events', [
+               'driver' => 'null',
+            ]);
+        }
 
         $this->publishes([
             __DIR__.'/../config/app-events.php' => config_path('app-events.php'),
