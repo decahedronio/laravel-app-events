@@ -10,11 +10,11 @@
     ],
     "require": {
         "google/cloud": "^0.88.0",
-        "illuminate/config": "5.7.*",
-        "illuminate/console": "5.7.*",
+        "illuminate/config": "5.7.*|5.8.*",
+        "illuminate/console": "5.7.*|5.8.*",
         "kainxspirits/laravel-pubsub-queue": "^0.1.0",
-        "google/protobuf": "^3.6.1",
-        "illuminate/bus": "^5.7"
+        "google/protobuf": "^3.6.0",
+        "illuminate/bus": "5.7.*|5.8.*"
     },
     "autoload": {
         "psr-4": {
