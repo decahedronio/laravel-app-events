@@ -10,7 +10,7 @@ class PubSubQueue extends BaseQueue
 {
     protected function createPayload($job, $queue, $data = '')
     {
-        $protoMappings = config('app-events.mappings');
+        $protoMappings = $this->container->make('config')->get('app-events.mappings');
         $payloadClass = get_class($job->payload);
 
         $payload = [
@@ -111,6 +111,6 @@ class PubSubQueue extends BaseQueue
 
     public function getSubscriberName()
     {
-        return $this->container['config']->get('app-events.subscription');
+        return $this->container->make('config')->get('app-events.subscription');
     }
 }

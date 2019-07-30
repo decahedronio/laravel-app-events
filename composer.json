@@ -21,6 +21,11 @@
             "Decahedron\\AppEvents\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Decahedron\\AppEvents\\Tests\\Proto": "tests/fixtures/Decahedron/AppEvents/Tests/Proto"
+        }
+    },
     "extra": {
         "laravel": {
             "dont-discover": [
@@ -30,5 +35,9 @@
                 "Decahedron\\AppEvents\\AppEventsProvider"
             ]
         }
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.2",
+        "phpunit/phpunit": "^8.2"
     }
 }

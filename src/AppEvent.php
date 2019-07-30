@@ -2,14 +2,13 @@
 
 namespace Decahedron\AppEvents;
 
-use Google\Protobuf\Internal\Message;
 use Illuminate\Bus\Queueable;
+use Google\Protobuf\Internal\Message;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 
 class AppEvent implements ShouldQueue
 {
-    use Dispatchable, Queueable;
+    use Queueable;
 
     /**
      * @var string

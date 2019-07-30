@@ -1,0 +1,7 @@
+syntax = "proto3";
+option php_namespace = "Decahedron\\AppEvents\\Tests\\Proto";
+option php_metadata_namespace = "Decahedron\\AppEvents\\Tests\\Proto\\Metadata";
+
+message Test {
+    string message = 1;
+}

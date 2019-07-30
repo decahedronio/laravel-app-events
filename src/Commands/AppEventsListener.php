@@ -2,12 +2,12 @@
 
 namespace Decahedron\AppEvents\Commands;
 
-use Decahedron\AppEvents\AppEvent;
+use Exception;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Google\Cloud\PubSub\PubSubClient;
 use Decahedron\AppEvents\AppEventFactory;
 use Decahedron\AppEvents\UnserializableProtoException;
-use Google\Cloud\PubSub\Message;
-use Google\Cloud\PubSub\PubSubClient;
-use Illuminate\Console\Command;
 
 class AppEventsListener extends Command
 {
@@ -16,7 +16,7 @@ class AppEventsListener extends Command
      *
      * @var string
      */
-    protected $signature = 'app-events:listen';
+    protected $signature = 'app-events:listen {--stop-on-failure}';
 
     /**
      * The console command description.
@@ -56,6 +56,8 @@ class AppEventsListener extends Command
                 continue;
             }
 
+            $handledMessages = [];
+
             foreach ($messages as $message) {
                 try {
                     $job = AppEventFactory::fromMessage($message);
@@ -65,10 +67,20 @@ class AppEventsListener extends Command
                 }
                 $this->info('Handling message: '.$job->event);
 
-                $job->handle();
+                try {
+                    $job->handle();
+                    $handledMessages[] = $message;
+                } catch (Exception $e) {
+                    if (! $this->option('stop-on-failure')) {
+                        Log::error('Failed to handle app event', ['exception' => $e]);
+                    } else {
+                        $subscription->acknowledgeBatch($handledMessages);
+                        throw $e;
+                    }
+                }
             }
 
-            $subscription->acknowledgeBatch($messages);
+            $subscription->acknowledgeBatch($handledMessages);
         }
     }
 }
