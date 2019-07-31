@@ -4,6 +4,7 @@ namespace Decahedron\AppEvents;
 
 use Google\Cloud\PubSub\Message;
 use Google\Protobuf\Internal\Message as ProtobufMessage;
+use Illuminate\Support\Facades\Config;
 
 class AppEventFactory
 {
@@ -17,7 +18,7 @@ class AppEventFactory
     {
         $rawData = json_decode($message->data(), JSON_OBJECT_AS_ARRAY);
 
-        if (! ($protobufClass = config('app-events.mappings.'.$rawData['proto']))) {
+        if (! ($protobufClass = Config::get('app-events.mappings.'.$rawData['proto']))) {
             throw new UnserializableProtoException($rawData['proto']);
         }
 

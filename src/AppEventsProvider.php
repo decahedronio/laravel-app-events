@@ -3,6 +3,7 @@
 namespace Decahedron\AppEvents;
 
 use Decahedron\AppEvents\Commands\AppEventsListener;
+use Google\Cloud\PubSub\PubSubClient;
 use Illuminate\Support\ServiceProvider;
 
 class AppEventsProvider extends ServiceProvider
@@ -35,5 +36,11 @@ class AppEventsProvider extends ServiceProvider
         $this->commands([
             AppEventsListener::class,
         ]);
+
+        $this->app->bind(PubSubClient::class, function ($app) {
+            return new PubSubClient([
+                'projectId' => $this->app['config']->get('app-events.project_id')
+            ]);
+        });
     }
 }

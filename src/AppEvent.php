@@ -3,7 +3,10 @@
 namespace Decahedron\AppEvents;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\App;
 use Google\Protobuf\Internal\Message;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AppEvent implements ShouldQueue
@@ -34,12 +37,12 @@ class AppEvent implements ShouldQueue
 
     public function handle()
     {
-        foreach (config('app-events.handlers') as $event => $handler) {
+        foreach (Config::get('app-events.handlers') as $event => $handler) {
             if ($this->event !== $event) {
                 continue;
             }
 
-            app()->make($handler)->handle($this->payload, $event);
+            Container::getInstance()->make($handler)->handle($this->payload, $event);
         }
     }
 }

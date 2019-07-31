@@ -4,6 +4,7 @@ namespace Decahedron\AppEvents\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Log;
 use Google\Cloud\PubSub\PubSubClient;
 use Decahedron\AppEvents\AppEventFactory;
@@ -16,7 +17,7 @@ class AppEventsListener extends Command
      *
      * @var string
      */
-    protected $signature = 'app-events:listen {--stop-on-failure}';
+    protected $signature = 'app-events:listen {--stop-on-failure} {--single}';
 
     /**
      * The console command description.
@@ -26,28 +27,47 @@ class AppEventsListener extends Command
     protected $description = 'Listen for notifications across all services of your application';
 
     /**
+     * @var PubSubClient
+     */
+    protected $pubSub;
+
+    /**
+     * @var Repository
+     */
+    protected $config;
+
+    /**
+     * AppEventsListener constructor.
+     * @param PubSubClient $pubSubClient
+     * @param Repository   $config
+     */
+    public function __construct(PubSubClient $pubSubClient, Repository $config)
+    {
+        parent::__construct();
+
+        $this->pubSub = $pubSubClient;
+        $this->config = $config;
+    }
+
+    /**
      * Execute the console command.
      *
      * @return mixed
      */
     public function handle()
     {
-        $pubSub = new PubSubClient([
-            'projectId' => config('app-events.project_id'),
-        ]);
-
-        $topic = $pubSub->topic(config('app-events.topic'));
+        $topic = $this->pubSub->topic($this->config->get('app-events.topic'));
         if (!$topic->exists()) {
             $topic->create();
         }
 
-        $subscription = $topic->subscription(config('app-events.subscription'));
+        $subscription = $topic->subscription($this->config->get('app-events.subscription'));
         if (!$subscription->exists()) {
             $subscription->create();
         }
 
         $this->info('Starting to listen for events');
-        while (true) {
+        do {
             $messages = $subscription->pull([
                 'maxMessages' => 500,
             ]);
@@ -80,7 +100,9 @@ class AppEventsListener extends Command
                 }
             }
 
-            $subscription->acknowledgeBatch($handledMessages);
-        }
+            if (count ($handledMessages)) {
+                $subscription->acknowledgeBatch($handledMessages);
+            }
+        } while (! $this->option('single'));
     }
 }
