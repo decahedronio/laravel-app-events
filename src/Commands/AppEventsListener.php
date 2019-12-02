@@ -17,7 +17,7 @@ class AppEventsListener extends Command
      *
      * @var string
      */
-    protected $signature = 'app-events:listen {--stop-on-failure} {--single}';
+    protected $signature = 'app-events:listen {--stop-on-failure} {--single} {--silent}';
 
     /**
      * The console command description.
@@ -66,7 +66,9 @@ class AppEventsListener extends Command
             $subscription->create();
         }
 
-        $this->info('Starting to listen for events');
+        if (! $this->option('silent')) {
+            $this->info('Starting to listen for events');
+        }
         do {
             $messages = $subscription->pull([
                 'maxMessages' => 500,
@@ -82,10 +84,14 @@ class AppEventsListener extends Command
                 try {
                     $job = AppEventFactory::fromMessage($message);
                 } catch (UnserializableProtoException $e) {
-                    $this->info('No implementation registered for message type: '.$e->protoMessageType);
+                    if (! $this->option('silent')) {
+                        $this->info('No implementation registered for message type: ' . $e->protoMessageType);
+                    }
                     continue;
                 }
-                $this->info('Handling message: '.$job->event);
+                if (! $this->option('silent')) {
+                    $this->info('Handling message: '.$job->event);
+                }
 
                 try {
                     $job->handle();
