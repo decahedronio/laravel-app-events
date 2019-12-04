@@ -87,6 +87,7 @@ class AppEventsListener extends Command
                     if (! $this->option('silent')) {
                         $this->info('No implementation registered for message type: ' . $e->protoMessageType);
                     }
+                    $handledMessages[] = $message;
                     continue;
                 }
                 if (! $this->option('silent')) {
