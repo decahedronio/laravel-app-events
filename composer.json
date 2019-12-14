@@ -10,11 +10,11 @@
     ],
     "require": {
         "google/cloud": "^0.88.0",
-        "illuminate/config": "5.7.*|5.8.*",
-        "illuminate/console": "5.7.*|5.8.*",
-        "kainxspirits/laravel-pubsub-queue": "^0.1.0 | ^0.2.0",
+        "illuminate/config": "^6.0",
+        "illuminate/console": "^6.0",
+        "kainxspirits/laravel-pubsub-queue": "dev-master#e89a29b78ba45ad8cacfb338ce68b578ac97df64",
         "google/protobuf": "^3.6.0",
-        "illuminate/bus": "5.7.*|5.8.*"
+        "illuminate/bus": "^6.0"
     },
     "autoload": {
         "psr-4": {
@@ -23,7 +23,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Decahedron\\AppEvents\\Tests\\Proto": "tests/fixtures/Decahedron/AppEvents/Tests/Proto"
+            "Decahedron\\AppEvents\\Tests\\Proto\\": "tests/fixtures/Decahedron/AppEvents/Tests/Proto"
         }
     },
     "extra": {
