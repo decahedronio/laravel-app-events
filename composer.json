@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "google/cloud": "^0.88.0",
+        "google/cloud": "^0.88.0|0.*",
         "illuminate/config": "^6.0",
         "illuminate/console": "^6.0",
         "kainxspirits/laravel-pubsub-queue": "dev-master#e89a29b78ba45ad8cacfb338ce68b578ac97df64",
