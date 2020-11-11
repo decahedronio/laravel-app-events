@@ -4,11 +4,12 @@ namespace Decahedron\AppEvents\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Log;
 use Google\Cloud\PubSub\PubSubClient;
 use Decahedron\AppEvents\AppEventFactory;
+use Illuminate\Contracts\Config\Repository;
 use Decahedron\AppEvents\UnserializableProtoException;
+use Decahedron\AppEvents\SubscriptionTopicMismatchException;
 
 class AppEventsListener extends Command
 {
@@ -49,21 +50,21 @@ class AppEventsListener extends Command
         $this->config = $config;
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
         $topic = $this->pubSub->topic($this->config->get('app-events.topic'));
+        $subscriptionName = $this->config->get('app-events.subscription_prefix') . $this->config->get('app-events.subscription');
         if (!$topic->exists()) {
             $topic->create();
         }
 
-        $subscription = $topic->subscription($this->config->get('app-events.subscription'));
+        $subscription = $topic->subscription($subscriptionName);
         if (!$subscription->exists()) {
             $subscription->create();
+        }
+
+        if ($subscription->info()['topic'] !== $this->config->get('app-events.topic')) {
+            throw new SubscriptionTopicMismatchException($this->config->get('app-events.topic'), $subscription);
         }
 
         if (! $this->option('silent')) {

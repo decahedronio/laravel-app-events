@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "php": ">= 7.3",
         "google/cloud": "0.*",
         "illuminate/config": "^6.0|^7.0|^8.0",
         "illuminate/console": "^6.0|^7.0|^8.0",
