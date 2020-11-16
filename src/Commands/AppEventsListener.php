@@ -63,7 +63,11 @@ class AppEventsListener extends Command
             $subscription->create();
         }
 
-        if ($subscription->info()['topic'] !== $this->config->get('app-events.topic')) {
+        // The full topic is projects/{project}/topics/{topic} and we only want {topic}
+        $parts = explode('/', $subscription->info()['topic']);
+        $topicName = array_pop($parts);
+
+        if ($topicName !== $this->config->get('app-events.topic')) {
             throw new SubscriptionTopicMismatchException($this->config->get('app-events.topic'), $subscription);
         }
 
