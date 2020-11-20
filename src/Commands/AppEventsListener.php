@@ -3,6 +3,7 @@
 namespace Decahedron\AppEvents\Commands;
 
 use Exception;
+use Google\Cloud\PubSub\Subscription;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Google\Cloud\PubSub\PubSubClient;
@@ -75,46 +76,51 @@ class AppEventsListener extends Command
             $this->info('Starting to listen for events');
         }
         do {
-            $messages = $subscription->pull([
-                'maxMessages' => 500,
-            ]);
+            $this->runIteration($subscription);
+        } while (! $this->option('single'));
+    }
 
-            if (count($messages) === 0) {
+    private function runIteration(Subscription $subscription)
+    {
+        $messages = $subscription->pull([
+            'maxMessages' => 500,
+        ]);
+
+        if (count($messages) === 0) {
+            return;
+        }
+
+        $handledMessages = [];
+
+        foreach ($messages as $message) {
+            try {
+                $job = AppEventFactory::fromMessage($message);
+            } catch (UnserializableProtoException $e) {
+                if (! $this->option('silent')) {
+                    $this->info('No implementation registered for message type: ' . $e->protoMessageType);
+                }
+                $handledMessages[] = $message;
                 continue;
             }
-
-            $handledMessages = [];
-
-            foreach ($messages as $message) {
-                try {
-                    $job = AppEventFactory::fromMessage($message);
-                } catch (UnserializableProtoException $e) {
-                    if (! $this->option('silent')) {
-                        $this->info('No implementation registered for message type: ' . $e->protoMessageType);
-                    }
-                    $handledMessages[] = $message;
-                    continue;
-                }
-                if (! $this->option('silent')) {
-                    $this->info('Handling message: '.$job->event);
-                }
-
-                try {
-                    $job->handle();
-                    $handledMessages[] = $message;
-                } catch (Exception $e) {
-                    if (! $this->option('stop-on-failure')) {
-                        Log::error('Failed to handle app event', ['exception' => $e]);
-                    } else {
-                        $subscription->acknowledgeBatch($handledMessages);
-                        throw $e;
-                    }
-                }
+            if (! $this->option('silent')) {
+                $this->info('Handling message: '.$job->event);
             }
 
-            if (count ($handledMessages)) {
-                $subscription->acknowledgeBatch($handledMessages);
+            try {
+                $job->handle();
+                $handledMessages[] = $message;
+            } catch (Exception $e) {
+                if (! $this->option('stop-on-failure')) {
+                    Log::error('Failed to handle app event', ['exception' => $e]);
+                } else {
+                    $subscription->acknowledgeBatch($handledMessages);
+                    throw $e;
+                }
             }
-        } while (! $this->option('single'));
+        }
+
+        if (count ($handledMessages)) {
+            $subscription->acknowledgeBatch($handledMessages);
+        }
     }
 }
