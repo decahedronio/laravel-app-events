@@ -37,6 +37,8 @@ class AppEventsProvider extends ServiceProvider
             AppEventsListener::class,
         ]);
 
+        $this->mergeConfigFrom(__DIR__ . '/../config/app-events.php', 'app-events');
+
         $this->app->bind(PubSubClient::class, function ($app) {
             return new PubSubClient([
                 'projectId' => $this->app['config']->get('app-events.project_id')
