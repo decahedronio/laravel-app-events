@@ -18,7 +18,7 @@ class AppEventFactory
     {
         $rawData = json_decode($message->data(), JSON_OBJECT_AS_ARRAY);
 
-        if (! ($protobufClass = Config::get('app-events.mappings.'.$rawData['proto']))) {
+        if (! isset($rawData['proto']) || ! ($protobufClass = Config::get('app-events.mappings.'.$rawData['proto']))) {
             throw new UnserializableProtoException($rawData['proto']);
         }
 
