@@ -2,7 +2,9 @@
 
 namespace Decahedron\AppEvents\Commands;
 
+use Decahedron\AppEvents\UnsupportedEventException;
 use Exception;
+use Google\Cloud\Core\Exception\BadRequestException;
 use Google\Cloud\PubSub\Subscription;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -80,6 +82,9 @@ class AppEventsListener extends Command
         } while (! $this->option('single'));
     }
 
+    /**
+     * @throws BadRequestException
+     */
     private function runIteration(Subscription $subscription)
     {
         $messages = $subscription->pull([
@@ -101,6 +106,14 @@ class AppEventsListener extends Command
                 }
                 $handledMessages[] = $message;
                 continue;
+            } catch (UnsupportedEventException $e) {
+                Log::debug('Unsupported message', [
+                    'exception' => $e,
+                    'message' => $message->info(),
+                    'published_at' => $message->publishTime(),
+                ]);
+                $handledMessages[] = $message;
+                continue;
             }
             if (! $this->option('silent')) {
                 $this->info('Handling message: '.$job->event);
@@ -110,12 +123,16 @@ class AppEventsListener extends Command
                 $job->handle();
                 $handledMessages[] = $message;
             } catch (Exception $e) {
-                if (! $this->option('stop-on-failure')) {
-                    Log::error('Failed to handle app event', ['exception' => $e]);
-                } else {
+                if ($this->option('stop-on-failure')) {
                     $subscription->acknowledgeBatch($handledMessages);
                     throw $e;
                 }
+
+                Log::error('Failed to handle app event', [
+                    'exception' => $e,
+                    'message' => $message->info(),
+                    'published_at' => $message->publishTime(),
+                ]);
             }
         }
 
